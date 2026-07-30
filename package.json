@@ -6,7 +6,7 @@
   "description": "CashierGo - POS & Business Management System with Neumorphic Design",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npx tsc -b && npx vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
