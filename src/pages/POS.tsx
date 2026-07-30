@@ -6,7 +6,6 @@ import CheckoutSuccess from '../components/pos/CheckoutSuccess'
 import { TAX_RATE, type CartItem, type Product } from '../components/pos/productData'
 
 export default function POS() {
-  // --- State ---
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [discountType, setDiscountType] = useState<DiscountType>('none')
   const [discountValue, setDiscountValue] = useState('')
@@ -23,52 +22,35 @@ export default function POS() {
     total: number
   } | null>(null)
 
-  // --- Computed cart values (with discount) ---
   const subtotal = useMemo(
-    () => cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
-    [cartItems]
+    () => cartItems.reduce((s, i) => s + i.product.price * i.quantity, 0),
+    [cartItems],
   )
-
   const discountAmount = useMemo(() => {
-    if (discountType === 'none') return 0
     const val = parseFloat(discountValue) || 0
     if (discountType === 'percentage') return subtotal * Math.min(val, 100) / 100
-    return Math.min(val, subtotal)
+    if (discountType === 'fixed') return Math.min(val, subtotal)
+    return 0
   }, [discountType, discountValue, subtotal])
+  const taxAmount = (subtotal - discountAmount) * TAX_RATE
+  const total = subtotal - discountAmount + taxAmount
 
-  const taxableAmount = subtotal - discountAmount
-  const taxAmount = taxableAmount * TAX_RATE
-  const total = taxableAmount + taxAmount
-
-  // --- Handlers ---
   const handleAddToCart = useCallback((product: Product) => {
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id)
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      }
+      const existing = prev.find((i) => i.product.id === product.id)
+      if (existing) return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
       return [...prev, { product, quantity: 1 }]
     })
   }, [])
 
   const handleUpdateQuantity = useCallback((productId: string, delta: number) => {
     setCartItems((prev) =>
-      prev
-        .map((item) =>
-          item.product.id === productId
-            ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
+      prev.map((i) => i.product.id === productId ? { ...i, quantity: Math.max(0, i.quantity + delta) } : i).filter((i) => i.quantity > 0),
     )
   }, [])
 
   const handleRemoveItem = useCallback((productId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.product.id !== productId))
+    setCartItems((prev) => prev.filter((i) => i.product.id !== productId))
   }, [])
 
   const handleClearCart = useCallback(() => {
@@ -77,29 +59,14 @@ export default function POS() {
     setDiscountValue('')
   }, [])
 
-  const handleCheckout = useCallback(() => {
-    if (cartItems.length === 0) return
-    setShowPayment(true)
-  }, [cartItems])
-
-  const handlePaymentConfirm = useCallback((result: PaymentResult) => {
-    setLastPayment({
-      orderId: result.orderId,
-      paymentMethod: result.paymentMethod,
-      amountTendered: result.amountTendered,
-      change: result.change,
-      subtotal,
-      discountAmount,
-      taxAmount,
-      total,
-    })
-    setShowPayment(false)
-    setShowSuccess(true)
-  }, [subtotal, discountAmount, taxAmount, total])
-
-  const handlePaymentCancel = useCallback(() => {
-    setShowPayment(false)
-  }, [])
+  const handlePaymentConfirm = useCallback(
+    (result: PaymentResult) => {
+      setLastPayment({ orderId: result.orderId, paymentMethod: result.paymentMethod, amountTendered: result.amountTendered, change: result.change, subtotal, discountAmount, taxAmount, total })
+      setShowPayment(false)
+      setShowSuccess(true)
+    },
+    [subtotal, discountAmount, taxAmount, total],
+  )
 
   const handleNewOrder = useCallback(() => {
     setCartItems([])
@@ -110,14 +77,11 @@ export default function POS() {
   }, [])
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-6rem)]">
-      {/* Left: Product Grid */}
+    <div className="flex gap-4 h-[calc(100vh-var(--header-h)-3rem)]">
       <div className="flex-1 min-w-0 flex flex-col">
         <ProductGrid onAddToCart={handleAddToCart} />
       </div>
-
-      {/* Right: Cart Panel */}
-      <div className="w-96 flex-shrink-0 flex flex-col">
+      <div className="w-80 xl:w-96 flex-shrink-0 flex flex-col">
         <CartPanel
           items={cartItems}
           discountType={discountType}
@@ -126,22 +90,19 @@ export default function POS() {
           onDiscountValueChange={setDiscountValue}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
-          onCheckout={handleCheckout}
+          onCheckout={() => { if (cartItems.length > 0) setShowPayment(true) }}
           onClearCart={handleClearCart}
         />
       </div>
 
-      {/* Payment Modal */}
       {showPayment && (
         <PaymentModal
           total={total}
           items={cartItems}
           onConfirm={handlePaymentConfirm}
-          onCancel={handlePaymentCancel}
+          onCancel={() => setShowPayment(false)}
         />
       )}
-
-      {/* Success Receipt */}
       {showSuccess && lastPayment && (
         <CheckoutSuccess
           orderId={lastPayment.orderId}
