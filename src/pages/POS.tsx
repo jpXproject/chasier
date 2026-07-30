@@ -11,6 +11,7 @@ export default function POS() {
   const [discountValue, setDiscountValue] = useState('')
   const [showPayment, setShowPayment] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showMobileCart, setShowMobileCart] = useState(false)
   const [lastPayment, setLastPayment] = useState<{
     orderId: string
     paymentMethod: PaymentResult['paymentMethod']
@@ -34,6 +35,7 @@ export default function POS() {
   }, [discountType, discountValue, subtotal])
   const taxAmount = (subtotal - discountAmount) * TAX_RATE
   const total = subtotal - discountAmount + taxAmount
+  const itemCount = cartItems.reduce((s, i) => s + i.quantity, 0)
 
   const handleAddToCart = useCallback((product: Product) => {
     setCartItems((prev) => {
@@ -73,15 +75,19 @@ export default function POS() {
     setDiscountType('none')
     setDiscountValue('')
     setShowSuccess(false)
+    setShowMobileCart(false)
     setLastPayment(null)
   }, [])
 
   return (
     <div className="flex gap-4 h-[calc(100vh-var(--header-h)-3rem)]">
-      <div className="flex-1 min-w-0 flex flex-col">
+      {/* Product Grid - main area */}
+      <div className="flex-1 min-w-0 flex flex-col anim-fade">
         <ProductGrid onAddToCart={handleAddToCart} />
       </div>
-      <div className="w-80 xl:w-96 flex-shrink-0 flex flex-col">
+
+      {/* Cart Panel - desktop */}
+      <div className="hidden lg:flex w-80 xl:w-96 flex-shrink-0 flex-col">
         <CartPanel
           items={cartItems}
           discountType={discountType}
@@ -94,6 +100,51 @@ export default function POS() {
           onClearCart={handleClearCart}
         />
       </div>
+
+      {/* Mobile cart toggle button */}
+      <button
+        onClick={() => setShowMobileCart(true)}
+        className="lg:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full btn-primary flex items-center justify-center shadow-lg btn-press animate-cart-bounce"
+        style={{ boxShadow: '0 8px 30px rgba(22, 163, 74, 0.4)' }}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+        {itemCount > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red text-white text-[10px] font-700 flex items-center justify-center anim-pop">
+            {itemCount}
+          </span>
+        )}
+      </button>
+
+      {/* Mobile cart drawer overlay */}
+      {showMobileCart && (
+        <div className="lg:hidden fixed inset-0 z-50 anim-fade">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowMobileCart(false)}
+          />
+          {/* Drawer */}
+          <div className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] anim-slide-right">
+            <CartPanel
+              items={cartItems}
+              discountType={discountType}
+              discountValue={discountValue}
+              onDiscountTypeChange={setDiscountType}
+              onDiscountValueChange={setDiscountValue}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemoveItem={handleRemoveItem}
+              onCheckout={() => {
+                setShowMobileCart(false)
+                if (cartItems.length > 0) setShowPayment(true)
+              }}
+              onClearCart={handleClearCart}
+            />
+          </div>
+        </div>
+      )}
 
       {showPayment && (
         <PaymentModal

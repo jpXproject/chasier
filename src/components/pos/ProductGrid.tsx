@@ -65,8 +65,8 @@ export default function ProductGrid({ onAddToCart }: ProductGridProps) {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={onAddToCart} />
+            {filtered.map((product, idx) => (
+              <ProductCard key={product.id} product={product} onAdd={onAddToCart} index={idx} />
             ))}
           </div>
         )}
@@ -80,26 +80,46 @@ export default function ProductGrid({ onAddToCart }: ProductGridProps) {
   )
 }
 
-function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product) => void }) {
+function ProductCard({ product, onAdd, index }: { product: Product; onAdd: (p: Product) => void; index: number }) {
   const [flash, setFlash] = useState(false)
+  const [showAdded, setShowAdded] = useState(false)
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setFlash(true)
+    setShowAdded(true)
     onAdd(product)
+
+    // Ripple effect
+    const btn = e.currentTarget
+    const rect = btn.getBoundingClientRect()
+    const ripple = document.createElement('span')
+    ripple.className = 'ripple'
+    ripple.style.left = `${e.clientX - rect.left}px`
+    ripple.style.top = `${e.clientY - rect.top}px`
+    ripple.style.width = ripple.style.height = '20px'
+    btn.appendChild(ripple)
+    setTimeout(() => ripple.remove(), 500)
+
     setTimeout(() => setFlash(false), 250)
+    setTimeout(() => setShowAdded(false), 800)
   }
 
   return (
     <button
       onClick={handleClick}
-      className="card card-hover p-3.5 flex flex-col items-center gap-2.5 cursor-pointer select-none text-left w-full transition-all duration-150 active:scale-95"
-      style={flash ? { background: 'var(--green-dim)', borderColor: 'var(--green-border)' } : {}}
+      className="card card-lift ripple-container p-3.5 flex flex-col items-center gap-2.5 cursor-pointer select-none text-left w-full active:scale-[0.96] animate-stagger relative"
+      style={{
+        ...(flash ? { background: 'var(--green-dim)', borderColor: 'var(--green-border)' } : {}),
+        animationDelay: `${Math.min(index * 0.03, 0.3)}s`,
+      }}
     >
       <div
-        className="w-full aspect-square rounded-xl flex items-center justify-center text-3xl"
+        className="w-full aspect-square rounded-xl flex items-center justify-center text-3xl transition-transform duration-200"
         style={{ background: 'var(--surface-2)' }}
       >
-        {product.image}
+        <span className="transition-transform duration-200 group-hover:scale-110" style={flash ? { transform: 'scale(1.2) rotate(-5deg)' } : {}}>
+          {product.image}
+        </span>
       </div>
       <div className="w-full">
         <p className="text-[11px] font-600 text-1 truncate leading-tight">{product.name}</p>
@@ -115,6 +135,14 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product)
           </span>
         </div>
       </div>
+      {/* Added indicator */}
+      {showAdded && (
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/20 backdrop-blur-[1px] anim-fade-scale">
+          <span className="text-white text-xs font-700 bg-green/90 px-3 py-1.5 rounded-full anim-pop">
+            ✓ Ditambahkan
+          </span>
+        </div>
+      )}
     </button>
   )
 }
