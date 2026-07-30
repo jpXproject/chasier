@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 480px;
+}
+
+/* =============================================================
+   CashierGo — Neumorphic Design System
+   Dark Mode | Phosphor Green · Crimson Red · Metallic Silver
+   ============================================================= */
+
+/* ----- Theme Variables (Light & Dark) ----- */
+:root {
+  --surface-bg: #e8e8e8;
+  --surface-card: #eeeeee;
+  --surface-raised: #f0f0f0;
+  --surface-indented: #e0e0e0;
+  --surface-hover: #f5f5f5;
+  --surface-active: #dcdcdc;
+
+  --shadow-neumo-raised:
+    6px 6px 12px rgba(174, 174, 174, 0.6),
+    -6px -6px 12px rgba(255, 255, 255, 0.8);
+  --shadow-neumo-raised-hover:
+    8px 8px 16px rgba(174, 174, 174, 0.6),
+    -8px -8px 16px rgba(255, 255, 255, 0.8);
+  --shadow-neumo-raised-active:
+    3px 3px 6px rgba(174, 174, 174, 0.6),
+    -3px -3px 6px rgba(255, 255, 255, 0.8);
+  --shadow-neumo-indented:
+    inset 4px 4px 8px rgba(174, 174, 174, 0.5),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+  --shadow-neumo-indented-focus:
+    inset 5px 5px 10px rgba(174, 174, 174, 0.6),
+    inset -5px -5px 10px rgba(255, 255, 255, 0.8);
+  --shadow-neumo-indented-active:
+    inset 3px 3px 6px rgba(174, 174, 174, 0.5),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+  --shadow-neumo-pressed:
+    inset 2px 2px 4px rgba(174, 174, 174, 0.5),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.5);
+
+  --color-phosphor: #16a34a;
+  --color-phosphor-hover: #15803d;
+  --color-phosphor-light: rgba(22, 163, 74, 0.15);
+  --color-crimson: #dc2626;
+  --color-crimson-hover: #b91c1c;
+  --color-crimson-light: rgba(220, 38, 38, 0.15);
+  --color-silver: #9ca3af;
+  --color-silver-hover: #8891a0;
+
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --text-on-dark: #f9fafb;
+
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-medium: rgba(0, 0, 0, 0.1);
+
+  --radius-neumo: 14px;
+  --radius-neumo-sm: 10px;
+  --radius-neumo-lg: 20px;
+  --transition-neumo: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark {
+  --surface-bg: #0a0a0a;
+  --surface-card: #161616;
+  --surface-raised: #1a1a1a;
+  --surface-indented: #121212;
+  --surface-hover: #202020;
+  --surface-active: #0e0e0e;
+
+  --shadow-neumo-raised:
+    6px 6px 12px rgba(0, 0, 0, 0.6),
+    -4px -4px 10px rgba(255, 255, 255, 0.03);
+  --shadow-neumo-raised-hover:
+    8px 8px 16px rgba(0, 0, 0, 0.7),
+    -5px -5px 12px rgba(255, 255, 255, 0.04);
+  --shadow-neumo-raised-active:
+    3px 3px 6px rgba(0, 0, 0, 0.6),
+    -2px -2px 5px rgba(255, 255, 255, 0.03);
+  --shadow-neumo-indented:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.03);
+  --shadow-neumo-indented-focus:
+    inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.04);
+  --shadow-neumo-indented-active:
+    inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.03);
+  --shadow-neumo-pressed:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.6),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.02);
+
+  --color-phosphor: #22c55e;
+  --color-phosphor-hover: #16a34a;
+  --color-phosphor-light: rgba(34, 197, 94, 0.12);
+  --color-crimson: #ef4444;
+  --color-crimson-hover: #dc2626;
+  --color-crimson-light: rgba(239, 68, 68, 0.12);
+  --color-silver: #a3aab5;
+  --color-silver-hover: #8b95a0;
+
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-on-dark: #f9fafb;
+
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-medium: rgba(255, 255, 255, 0.08);
+}
+
+/* =============================================================
+   Base
+   ============================================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
+  transition: background-color var(--transition-neumo), color var(--transition-neumo);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+::selection { background-color: var(--color-phosphor-light); color: var(--color-phosphor); }
+
+/* =============================================================
+   THEME-ENABLED UTILITY CLASSES
+   These bridge CSS custom properties to Tailwind-compatible class names
+   ============================================================= */
+
+/* Backgrounds */
+.bg-surface-bg { background-color: var(--surface-bg); }
+.bg-surface-card { background-color: var(--surface-card); }
+
+/* Text colors */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-on-dark { color: var(--text-on-dark); }
+.hover\:text-primary:hover { color: var(--text-primary); }
+
+/* Border colors */
+.border-border-subtle { border-color: var(--border-subtle); }
+.border-border-medium { border-color: var(--border-medium); }
+.border-t-border-subtle { border-top-color: var(--border-subtle); }
+.border-b-border-subtle { border-bottom-color: var(--border-subtle); }
+
+/* Brand colors */
+.text-phosphor { color: var(--color-phosphor); }
+.text-crimson { color: var(--color-crimson); }
+.text-silver { color: var(--color-silver); }
+.text-amber-400 { color: #fbbf24; }
+.text-sky-400 { color: #38bdf8; }
+.bg-phosphor { background-color: var(--color-phosphor); }
+.bg-crimson { background-color: var(--color-crimson); }
+.bg-phosphor-light { background-color: var(--color-phosphor-light); }
+.bg-crimson-light { background-color: var(--color-crimson-light); }
+.bg-amber-500\/10 { background-color: rgba(245, 158, 11, 0.1); }
+.bg-sky-500\/10 { background-color: rgba(14, 165, 233, 0.1); }
+.border-phosphor\/20 { border-color: rgba(34, 197, 94, 0.2); }
+.border-phosphor\/15 { border-color: rgba(34, 197, 94, 0.15); }
+.border-phosphor\/10 { border-color: rgba(34, 197, 94, 0.1); }
+.border-crimson\/15 { border-color: rgba(239, 68, 68, 0.15); }
+.border-crimson\/10 { border-color: rgba(239, 68, 68, 0.1); }
+.border-crimson\/20 { border-color: rgba(239, 68, 68, 0.2); }
+.border-amber-500\/15 { border-color: rgba(245, 158, 11, 0.15); }
+.border-sky-500\/15 { border-color: rgba(14, 165, 233, 0.15); }
+.border-white\/5 { border-color: rgba(255, 255, 255, 0.05); }
+.border-white\/10 { border-color: rgba(255, 255, 255, 0.1); }
+.border-transparent { border-color: transparent; }
+.bg-white\/5 { background-color: rgba(255, 255, 255, 0.05); }
+.bg-white\/\[0\.02\] { background-color: rgba(255, 255, 255, 0.02); }
+.bg-transparent { background-color: transparent; }
+.hover\:bg-white\/5:hover { background-color: rgba(255, 255, 255, 0.05); }
+.hover\:bg-white\/\[0\.02\]:hover { background-color: rgba(255, 255, 255, 0.02); }
+.active\:bg-white\/10:active { background-color: rgba(255, 255, 255, 0.1); }
+
+/* =============================================================
+   Neumorphic Utility Classes
+   ============================================================= */
+.neumo-raised {
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-neumo-raised);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-neumo);
+}
+.neumo-raised:hover { box-shadow: var(--shadow-neumo-raised-hover); background: var(--surface-hover); }
+.neumo-raised:active { box-shadow: var(--shadow-neumo-raised-active); background: var(--surface-active); }
+
+.neumo-indented {
+  background: var(--surface-indented);
+  box-shadow: var(--shadow-neumo-indented);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-neumo);
+}
+.neumo-indented:focus-within { box-shadow: var(--shadow-neumo-indented-focus); }
+
+.neumo-pressed {
+  background: var(--surface-active);
+  box-shadow: var(--shadow-neumo-pressed);
+  border: 1px solid var(--border-subtle);
+}
+
+/* =============================================================
+   Scrollbar
+   ============================================================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface-bg); }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* =============================================================
+   Animations
+   ============================================================= */
+@keyframes neumo-pulse {
+  0%, 100% { box-shadow: var(--shadow-neumo-raised); }
+  50% { box-shadow: var(--shadow-neumo-raised-hover); }
+}
+@keyframes neumo-glow-green {
+  0%, 100% { box-shadow: var(--shadow-neumo-raised), 0 0 0 0 rgba(34, 197, 94, 0); }
+  50% { box-shadow: var(--shadow-neumo-raised-hover), 0 0 20px 2px rgba(34, 197, 94, 0.15); }
+}
+@keyframes neumo-glow-red {
+  0%, 100% { box-shadow: var(--shadow-neumo-raised), 0 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: var(--shadow-neumo-raised-hover), 0 0 20px 2px rgba(239, 68, 68, 0.15); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+.animate-slide-up { animation: slide-up 0.4s ease-out forwards; }
+.animate-neumo-pulse { animation: neumo-pulse 2s ease-in-out infinite; }
+.animate-glow-green { animation: neumo-glow-green 2s ease-in-out infinite; }
+.animate-glow-red { animation: neumo-glow-red 2s ease-in-out infinite; }
