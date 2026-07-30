@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { PRODUCTS, CATEGORIES, formatRp, type Product } from '../components/pos/productData'
+import { PRODUCTS, CATEGORIES, formatRp } from '../components/pos/productData'
 
 /* ============================================================
    Stock status helper

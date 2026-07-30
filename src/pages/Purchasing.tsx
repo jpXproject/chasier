@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { PURCHASE_ORDERS, SUPPLIERS, formatRp, type PurchaseOrder } from '../data/purchasingData'
+import { PURCHASE_ORDERS, SUPPLIERS, formatRp } from '../data/purchasingData'
 
 /* ============================================================
    Status Badge

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { TAX_RATE, formatRp, type CartItem } from './productData'
 
 export type DiscountType = 'none' | 'percentage' | 'fixed'

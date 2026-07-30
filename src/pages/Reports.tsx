@@ -203,7 +203,7 @@ export default function Reports() {
           { label: 'Total Expenses', value: fmtCurrency(summary.totalExpenses), icon: '💸', color: 'var(--red)', trend: '+8.2%' },
           { label: 'Net Profit', value: fmtCurrency(summary.netProfit), icon: '📈', color: 'var(--blue)', trend: '+15.3%' },
           { label: 'Profit Margin', value: `${summary.profitMargin.toFixed(1)}%`, icon: '📊', color: 'var(--amber)', trend: '+2.1%' },
-        ].map((s, i) => (
+        ].map((s) => (
           <div key={s.label} className="card p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: s.color + '18' }}>
@@ -340,7 +340,7 @@ export default function Reports() {
             </div>
           </div>
           <div className="space-y-3">
-            {EMPLOYEE_PERFORMANCE.map((e, i) => {
+            {EMPLOYEE_PERFORMANCE.map((e) => {
               const maxSales = Math.max(...EMPLOYEE_PERFORMANCE.map(emp => emp.sales))
               const pct = maxSales > 0 ? (e.sales / maxSales) * 100 : 0
               return (
@@ -370,7 +370,7 @@ export default function Reports() {
           { label: 'Items Sold', value: '1,245', icon: '📦' },
           { label: 'New Customers', value: '89', icon: '👥' },
           { label: 'Return Rate', value: '12%', icon: '🔄' },
-        ].map((s, i) => (
+        ].map((s) => (
           <div key={s.label} className="card p-4 text-center">
             <span className="text-xl">{s.icon}</span>
             <p className="text-[10px] font-500 text-3 uppercase tracking-wider mt-1">{s.label}</p>

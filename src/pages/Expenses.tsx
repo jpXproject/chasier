@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { EXPENSES, EXPENSE_CATEGORIES, formatRp, type Expense, type ExpenseCategory } from '../data/purchasingData'
+import { EXPENSES, EXPENSE_CATEGORIES, type ExpenseCategory } from '../data/purchasingData'
 
 /* ============================================================
    Helper
