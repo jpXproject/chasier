@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import ProductGrid from '../components/pos/ProductGrid'
 import CartPanel, { type DiscountType } from '../components/pos/CartPanel'
 import PaymentModal, { type PaymentResult } from '../components/pos/PaymentModal'
@@ -23,6 +23,27 @@ export default function POS() {
     total: number
   } | null>(null)
 
+  // BroadcastChannel for Customer Display sync
+  const channelRef = useRef<BroadcastChannel | null>(null)
+  useEffect(() => {
+    try {
+      channelRef.current = new BroadcastChannel('cashiergo-pos-sync')
+    } catch { /* broadcast not supported */ }
+    return () => { channelRef.current?.close() }
+  }, [])
+
+  const broadcastCartUpdate = useCallback((items: CartItem[], total: number, itemCount: number) => {
+    channelRef.current?.postMessage({ type: 'cart-update', payload: { items, total, itemCount } })
+  }, [])
+
+  const broadcastCartClear = useCallback(() => {
+    channelRef.current?.postMessage({ type: 'cart-clear' })
+  }, [])
+
+  const broadcastOrderSuccess = useCallback(() => {
+    channelRef.current?.postMessage({ type: 'order-success' })
+  }, [])
+
   const subtotal = useMemo(
     () => cartItems.reduce((s, i) => s + i.product.price * i.quantity, 0),
     [cartItems],
@@ -40,34 +61,51 @@ export default function POS() {
   const handleAddToCart = useCallback((product: Product) => {
     setCartItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id)
-      if (existing) return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
-      return [...prev, { product, quantity: 1 }]
+      const updated = existing
+        ? prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
+        : [...prev, { product, quantity: 1 }]
+      const total = updated.reduce((s, i) => s + i.product.price * i.quantity, 0)
+      const itemCount = updated.reduce((s, i) => s + i.quantity, 0)
+      broadcastCartUpdate(updated, total, itemCount)
+      return updated
     })
-  }, [])
+  }, [broadcastCartUpdate])
 
   const handleUpdateQuantity = useCallback((productId: string, delta: number) => {
-    setCartItems((prev) =>
-      prev.map((i) => i.product.id === productId ? { ...i, quantity: Math.max(0, i.quantity + delta) } : i).filter((i) => i.quantity > 0),
-    )
-  }, [])
+    setCartItems((prev) => {
+      const updated = prev.map((i) => i.product.id === productId ? { ...i, quantity: Math.max(0, i.quantity + delta) } : i).filter((i) => i.quantity > 0)
+      const total = updated.reduce((s, i) => s + i.product.price * i.quantity, 0)
+      const itemCount = updated.reduce((s, i) => s + i.quantity, 0)
+      broadcastCartUpdate(updated, total, itemCount)
+      return updated
+    })
+  }, [broadcastCartUpdate])
 
   const handleRemoveItem = useCallback((productId: string) => {
-    setCartItems((prev) => prev.filter((i) => i.product.id !== productId))
-  }, [])
+    setCartItems((prev) => {
+      const updated = prev.filter((i) => i.product.id !== productId)
+      const total = updated.reduce((s, i) => s + i.product.price * i.quantity, 0)
+      const itemCount = updated.reduce((s, i) => s + i.quantity, 0)
+      broadcastCartUpdate(updated, total, itemCount)
+      return updated
+    })
+  }, [broadcastCartUpdate])
 
   const handleClearCart = useCallback(() => {
     setCartItems([])
     setDiscountType('none')
     setDiscountValue('')
-  }, [])
+    broadcastCartClear()
+  }, [broadcastCartClear])
 
   const handlePaymentConfirm = useCallback(
     (result: PaymentResult) => {
       setLastPayment({ orderId: result.orderId, paymentMethod: result.paymentMethod, amountTendered: result.amountTendered, change: result.change, subtotal, discountAmount, taxAmount, total })
       setShowPayment(false)
       setShowSuccess(true)
+      broadcastOrderSuccess()
     },
-    [subtotal, discountAmount, taxAmount, total],
+    [subtotal, discountAmount, taxAmount, total, broadcastOrderSuccess],
   )
 
   const handleNewOrder = useCallback(() => {
@@ -77,7 +115,8 @@ export default function POS() {
     setShowSuccess(false)
     setShowMobileCart(false)
     setLastPayment(null)
-  }, [])
+    broadcastCartClear()
+  }, [broadcastCartClear])
 
   return (
     <div className="flex gap-4 h-[calc(100vh-var(--header-h)-3rem)]">
